@@ -27,6 +27,8 @@
 #include <stdio.h>
 #include <getopt.h>
 
+#include <unistd.h>
+
 #include <fpga_mgmt.h>
 #include <utils/lcd.h>
 
@@ -165,6 +167,10 @@ cli_show_image_info(struct fpga_mgmt_image_info *info)
 
 		printf("pcim-axi-protocol-error=%u\n",
 				(fmc->int_status & FPGA_INT_STATUS_PCI_MASTER_AXI_PROTOCOL_ERROR) ?
+				1 : 0);
+
+		printf("dma-range-error=%u\n",
+				(fmc->int_status & FPGA_INT_STATUS_DMA_RANGE_ERROR) ?
 				1 : 0);
 
 		printf("pcim-axi-protocol-4K-cross-error=%u\n",
@@ -640,7 +646,7 @@ main(int argc, char *argv[])
 	int ret = cli_create();
 	fail_on(ret != 0, err, "cli_create failed");
 
-	ret = log_init("fpga-local-cmd");
+	ret = log_init("fpga-local-cmd(%u)", getpid());
 	fail_on(ret != 0, err, "log_init failed");
 
 	ret = log_attach(logger, NULL, 0);
